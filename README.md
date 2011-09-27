@@ -1,6 +1,16 @@
-# Data Structures
-Data structures are important. Learn them!
+# Common interview questions implemented in JavaScript
 
-Included:
+## Data Structures
 
 * Linked List
+* 
+
+## Sorting Algorithms
+
+* 
+
+## Miscellaneous
+
+* Reverse digits of an integer
+* Truncate text at the end of a word
+* 

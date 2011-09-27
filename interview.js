@@ -142,7 +142,7 @@ pg.truncateAtWord = function (text, maxLength){
 	//last character is inside a word, 
 	//backtrack until a space is found.
 	for(var i = maxLength - 1; i >= 0; i--){
-		pg.printLn(text.charAt(i));
+		
 		if(text.charAt(i) == " "){
 			return text.substr(0, i);
 		}
@@ -153,6 +153,7 @@ pg.truncateAtWord = function (text, maxLength){
 
 }
 
+//TODO: write tests for this. not tested at all.
 pg.BinarySearchTree = {
 	root: null ,
 	node: {
@@ -164,11 +165,98 @@ pg.BinarySearchTree = {
 		data: null
 	} ,
 
+	//returns reference to node if found, false otherwise
 	search: function(data, root){
-		
+		if(root === undefined){
+			root = this.root;
+		}
+		//tree is empty
+		if(root === null){
+			return false;
+		}
+		//key found
+		if(data == root.data){
+			return root.data;
+		}
+		else if(data < root.data){
+			if(root.left === null){
+				return false;
+			} else{
+				return pg.search(data, root.left);
+			}
+		} else if(data > root.data){
+			if(root.right === null){
+				return false;
+			} else {
+				return pg.search(data, root.right);
+			}
+		}
+
 	} ,
 
-	delete: function(data){
+	//returns true on success, false if node not found
+	delete: function(data, root){
+		if(root === undefined){
+			root = this.root;
+		}
+		//tree is empty
+		if(root === null){
+			return false;
+		}
+		
+		//look one level below root because deleting requires a reference to the parent.
+		var node; //the node to be deleted. //root is its parent.
+		if(data < root.data){
+			if(root.left === null){
+				return false;
+			} else if(root.left.data == data){
+				node = root.left;
+			} else {
+				//recurse further left
+				return delete(data, root.left);
+			}
+
+		} else if (data > root.data){
+			if(root.right === null){
+				return false;
+			} else if(root.right.data == data){
+				node = root.right;
+			} else {
+				//recurse further left
+				return delete(data, root.right);
+			}
+		}
+
+		//case 1 root.left is a leaf. just delete it.
+		if(node.left === null && node.right === null){
+			if(root.left == node){
+				root.left = null;
+			} else {
+				root.right = null;
+			}
+		} else if(node.left === null && node.right != null){
+			//case 2: has one child on right
+			if(root.left == node){
+				root.left = node.right;
+			} else {
+				root.right = node.right;
+			}
+			return true;
+		} else if(node.left != null && node.right === null){
+			//case 3: has one child on left
+			if(root.left == node){
+				root.left = node.left;
+			} else {
+				root.right = node.left;
+			}
+			return true;
+		} else {
+			//case 4: has two children. 
+			// replace value with left child and delete left child.
+			node.data = node.left.data;
+			return pg.delete(data, node.left);
+		}
+			
 		
 	} ,
 
@@ -179,11 +267,12 @@ pg.BinarySearchTree = {
 			root = this.root;
 		}
 
-		if(root == null){
+		if(root === null){
+			//got called on empty tree
 			return false;
 		} else {
 			//recursed all the way to right
-			if(root.right == null){
+			if(root.right === null){
 				return root.data;
 			//keep recursing right
 			} else {
@@ -202,6 +291,7 @@ pg.BinarySearchTree = {
 		}
 
 		if(root == null){
+			//called on empty tree
 			return false;
 		} else {
 			//recursed all the way to right
@@ -250,15 +340,67 @@ pg.BinarySearchTree = {
 
 
 }
+
+//find first nonrepeated char in a string
+// 2 passes is O(n)
+pg.firstNonrepeatedChar = function(text){
+
+	var histo = [];
+	//zero out histogram
+	for(var i = 0; i < 26; i++){
+		histo[i] = 0;
+	}
+	for(var i = 0; i < text.length; i++){
+		console.log(text.charCodeAt(i) - 97);
+		histo[text.charCodeAt(i) - 97]++;
+	}
+
+	//Remember that hoisting means that this i is the same as the previous i.
+	for(var i = 0; i < text.length; i++){
+		if(histo[text.charCodeAt(i) - 97] == 1){
+			return text.charAt(i);
+		}
+	}
+	//all characters repeated
+	console.log(histo);
+	return false;
+};
+
+//test if a === b
+pg.assert = function(a, b, test_name){
+	
+	if(test_name === undefined){
+		test_name = "unnamed";
+	}
+	if(a === b){
+		pg.printLn(test_name + " test PASSED");
+		return true;
+	} else {
+		pg.printLn(test_name + " test FAILED");
+		pg.printLn("a: " + a + " b: " + b);
+		return false;
+	}
+};
+
 pg.printLn = function (message){
 	$("#console").append("<li>" + message + "</li>");
 	//scroll to show new message
 	$("#console").prop('scrollTop',$("#console").prop('scrollHeight'));	
-}
+};
 
 //I'll eventually turn these into real unit tests
 pg.tests = {
+	firstNonrepeatedCharTest: function(){
+		pg.printLn("Testing firstNonrepeatedChar");
+		pg.assert(pg.firstNonrepeatedChar("baboon"), "a", "baboon");
+		pg.assert(pg.firstNonrepeatedChar("fork"), "f", "fork");
+		pg.assert(pg.firstNonrepeatedChar("total"), "o", "total");
+		pg.assert(pg.firstNonrepeatedChar("teeter"), "r", "teeter");
+	} ,
 	truncateAtWordTest: function(){
+
+		pg.printLn("Testing truncateAtWord");
+
 		var text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. " +
 		"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown " + 
 		"printer took a galley of type and scrambled it to make a type specimen book. It has survived not " +
@@ -266,7 +408,9 @@ pg.tests = {
 		"It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, " +
 		"and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
-		pg.printLn(pg.truncateAtWord(text, 14));
+		pg.assert(pg.truncateAtWord(text, 14), "Lorem Ipsum is", "14");
+		pg.assert(pg.truncateAtWord(text, 8), "Lorem", "8");
+		
 	} ,
 
 	linkedListTest: function(){
@@ -312,17 +456,19 @@ pg.tests = {
 
 	reverseIntTest: function() {
 		//Test reverseInt
-		var integers = [1, 123, 222, 0, 1010];
+		pg.printLn("Testing reverseInt");
+		var integers = [{input: 123, output: 321}, {input: 222, output: 222}, {input: 0, output:0}, {input:101, output: 101}];
 		for(var i = 0; i < integers.length; i++){
-			pg.printLn("Reversing integer " + integers[i] + " => " + pg.reverseInt(integers[i]));
+			pg.assert(pg.reverseInt(integers[i].input), integers[i].output, integers[i].input);
 		}
 	}
-}
+};
 
 $(function(){
-	pg.printLn("Welcome to the JavaScript Data Structures Playground");
-	//test truncate at word
-	pg.tests.linkedListTest();
+	pg.printLn("Common interview questions implemented in JavaScript");
+	//TODO: write tests for linked list and binary search tree
+	//pg.tests.linkedListTest();
 	pg.tests.reverseIntTest();
 	pg.tests.truncateAtWordTest();
-})
+	pg.tests.firstNonrepeatedCharTest();
+});
