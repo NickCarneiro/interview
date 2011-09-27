@@ -18,4 +18,5 @@
 * Binary search
 
 Unit tests included
+
 Only tested in Chrome 14
