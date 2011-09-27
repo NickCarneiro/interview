@@ -351,7 +351,7 @@ pg.firstNonrepeatedChar = function(text){
 		histo[i] = 0;
 	}
 	for(var i = 0; i < text.length; i++){
-		console.log(text.charCodeAt(i) - 97);
+		
 		histo[text.charCodeAt(i) - 97]++;
 	}
 
@@ -365,6 +365,43 @@ pg.firstNonrepeatedChar = function(text){
 	console.log(histo);
 	return false;
 };
+
+//remove is an array of characters to be deleted from the String text.
+//does not check for uppercase and lowercase values of the same letter.
+// O(n * m). Concatenating here instead of using a character array takes more memory and is slower in IE.
+pg.deleteChars = function(text, remove){
+	var result = "";
+	//javascript strings can be concatenated on the fly. no need for pointers
+	for(var i = 0; i < text.length; i++){
+		if(remove.indexOf(text.charAt(i)) == -1){
+			//character not in remove array. add to result
+			result += text.charAt(i).toString(); //force string type.
+		}
+	}
+
+	return result;
+}
+
+//returns true if found, false otherwise
+pg.binSearch = function(needle, body, low, high){
+	if(low === undefined){
+		low = 0;
+	}
+	if(high === undefined){
+		high = body.length - 1;
+	}
+	if(high < low){
+		return false;
+	}
+	var mid = Math.floor(low + (high - low) / 2);
+	if(needle > body[mid]){
+		return pg.binSearch(needle, body, mid + 1, high);
+	} else if(needle < body[mid]){
+		return pg.binSearch(needle, body, low, mid - 1);
+	} else {
+		return true;
+	}
+}
 
 //test if a === b
 pg.assert = function(a, b, test_name){
@@ -388,9 +425,30 @@ pg.printLn = function (message){
 	$("#console").prop('scrollTop',$("#console").prop('scrollHeight'));	
 };
 
+pg.printBr = function(){
+	$("#console").append("<li><br /></li>");
+}
+
 //I'll eventually turn these into real unit tests
 pg.tests = {
+	binSearchTest: function(){
+		pg.printBr();
+		pg.printLn("Testing binSearch");
+		var body1 = [1,2,3,23,25,28,40,70,99];
+		var body2 = [1,2,3];
+		var body3 = [1];
+		pg.assert(pg.binSearch(1, body1),true, "1 in body1");
+		pg.assert(pg.binSearch(28, body1),true, "28 in body1");
+		pg.assert(pg.binSearch(29, body1),false, "29 in body1");
+
+		pg.assert(pg.binSearch(2, body2),true, "2 in body2");
+		pg.assert(pg.binSearch(4, body2),false, "4 in body2");
+
+		pg.assert(pg.binSearch(2, body3),false, "2 in body3");
+		pg.assert(pg.binSearch(1, body3),true, "1 in body3");
+	} ,
 	firstNonrepeatedCharTest: function(){
+		pg.printBr();
 		pg.printLn("Testing firstNonrepeatedChar");
 		pg.assert(pg.firstNonrepeatedChar("baboon"), "a", "baboon");
 		pg.assert(pg.firstNonrepeatedChar("fork"), "f", "fork");
@@ -398,7 +456,7 @@ pg.tests = {
 		pg.assert(pg.firstNonrepeatedChar("teeter"), "r", "teeter");
 	} ,
 	truncateAtWordTest: function(){
-
+		pg.printBr();
 		pg.printLn("Testing truncateAtWord");
 
 		var text = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. " +
@@ -456,11 +514,22 @@ pg.tests = {
 
 	reverseIntTest: function() {
 		//Test reverseInt
+		pg.printBr();
 		pg.printLn("Testing reverseInt");
 		var integers = [{input: 123, output: 321}, {input: 222, output: 222}, {input: 0, output:0}, {input:101, output: 101}];
 		for(var i = 0; i < integers.length; i++){
 			pg.assert(pg.reverseInt(integers[i].input), integers[i].output, integers[i].input);
 		}
+	} ,
+
+	deleteCharsTest: function(){
+		pg.printBr();
+		pg.printLn("Testing deleteChars");
+		var remove = ["a", "e", "i", "o", "u"];
+		var text = "and still i see no changes. can't a brother get a little peace?";
+		var soln = "nd stll  s n chngs. cn't  brthr gt  lttl pc?";
+
+		pg.assert(pg.deleteChars(text, remove), soln, "Tupac");
 	}
 };
 
@@ -471,4 +540,6 @@ $(function(){
 	pg.tests.reverseIntTest();
 	pg.tests.truncateAtWordTest();
 	pg.tests.firstNonrepeatedCharTest();
+	pg.tests.deleteCharsTest();
+	pg.tests.binSearchTest();
 });
