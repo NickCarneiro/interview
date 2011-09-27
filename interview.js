@@ -403,6 +403,26 @@ pg.binSearch = function(needle, body, low, high){
 	}
 }
 
+//O(n^2) insertion sort
+//returns sorted array
+//values is array of ints
+pg.insertSort = function(values){
+	for(var i = 0; i < values.length; i++){
+		
+		for(var j = 0; j < i; j++){
+			var temp;
+			if(values[i] < values[j]){
+				//swap j and i
+				temp = values[j];
+				values[j] = values[i];
+				values[i] = temp;
+			}
+		}
+	}
+
+	return values;
+}
+
 //test if a === b
 pg.assert = function(a, b, test_name){
 	
@@ -431,6 +451,15 @@ pg.printBr = function(){
 
 //I'll eventually turn these into real unit tests
 pg.tests = {
+
+	insertSortTest: function(){
+		pg.printBr();
+		pg.printLn("Testing insertSort");
+		pg.assert(pg.insertSort([3,1,2]).toString(), [1,2,3].toString(),"123");
+		pg.assert(pg.insertSort([3,1,2,0,26,99]).toString(), [0,1,2,3,26,99].toString());
+		pg.assert(pg.insertSort([0]).toString(), [0].toString());
+	} ,
+
 	binSearchTest: function(){
 		pg.printBr();
 		pg.printLn("Testing binSearch");
@@ -542,4 +571,6 @@ $(function(){
 	pg.tests.firstNonrepeatedCharTest();
 	pg.tests.deleteCharsTest();
 	pg.tests.binSearchTest();
+	pg.tests.insertSortTest();
+	
 });

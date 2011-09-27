@@ -7,7 +7,7 @@
 
 ## Sorting Algorithms
 
-* Coming soon
+* Insertion sort
 
 ## Miscellaneous
 
