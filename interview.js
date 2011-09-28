@@ -423,6 +423,27 @@ pg.insertSort = function(values){
 	return values;
 }
 
+
+//find permutations of suffix.
+//for each letter in suffix, move it to prefix and recurse on new suffix
+pg.permute = function(suffix, prefix, result){
+
+	var newprefix = "";
+	var newsuffix = "";
+	for(var i = 0; i < suffix.length; i++){
+		newprefix = suffix.charAt(i);
+		newsuffix = suffix.substr(0,i) + suffix.substr(i + 1);
+		//base case: permuting a prefix with suffix length 1
+		if(newsuffix.length == 1){
+			var perm = prefix + newprefix + newsuffix;
+			//pg.printLn("perm: " + perm);
+			result.push(perm);
+		} else {
+			pg.permute(newsuffix, prefix + newprefix, result);
+		}
+	}
+}
+
 //test if a === b
 pg.assert = function(a, b, test_name){
 	
@@ -449,8 +470,17 @@ pg.printBr = function(){
 	$("#console").append("<li><br /></li>");
 }
 
+
 //I'll eventually turn these into real unit tests
 pg.tests = {
+	permuteTest: function(){
+		pg.perms = [];
+		pg.printBr();
+		pg.printLn("Testing permute");	
+		pg.permute("abc", "", pg.perms);
+		pg.assert(pg.perms.toString(), "abc,acb,bac,bca,cab,cba", "abc");
+		
+	} ,
 
 	insertSortTest: function(){
 		pg.printBr();
@@ -572,5 +602,6 @@ $(function(){
 	pg.tests.deleteCharsTest();
 	pg.tests.binSearchTest();
 	pg.tests.insertSortTest();
+	pg.tests.permuteTest();
 	
 });

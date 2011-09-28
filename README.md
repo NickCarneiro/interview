@@ -16,6 +16,7 @@
 * Find first nonrepeated character in a string
 * Delete given characters from a string
 * Binary search
+* String permutations
 
 Unit tests included
 
